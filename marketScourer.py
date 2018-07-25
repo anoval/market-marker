@@ -73,9 +73,9 @@ def getIndices(client,symbol): # get indices for symbol
     mean=statistics.mean(closes)
     std=statistics.stdev(closes)
     Z=(closes[-1]-mean)/std
-    if (haCandlesC[-1]>haCandlesO[-1]) and (closes[-2]<opens[-2]):
+    if (haCandlesC[-1]>haCandlesO[-1]) and (closes[-2]<opens[-2]) and (closes[-3]<opens[-3]):
         haSwitch=1
-    elif (haCandlesC[-1]<haCandlesO[-1]) and (closes[-2]>opens[-2]):
+    elif (haCandlesC[-1]<haCandlesO[-1]) and (closes[-2]>opens[-2]) and (closes[-3]>opens[-3]):
         haSwitch=-1
     else:
         haSwitch=0
@@ -92,6 +92,11 @@ def printProgress(i,n):
     print("~~~NEXT UPDATE: ["+"1"*progress+"0"*(10-progress)+"]",end='~~~\r')
 
 def checkSymbols(client,symbols,market):
+    strongSell2=[]
+    sell2=[]
+    neutral2=[]
+    buy2=[]
+    strongBuy2=[]
     strongSell=[]
     sell=[]
     neutral=[]
@@ -110,6 +115,16 @@ def checkSymbols(client,symbols,market):
             buy.append([symbol,RSI,Z,MFI,haS])       
         else: # neutral
             neutral.append([symbol,RSI,Z,MFI,haS])
+        if (MFI>0.7 and haS==-1): # strong sell
+            strongSell2.append([symbol,RSI,Z,MFI,haS])
+        elif (MFI>0.6 and haS==-1): # sell
+            sell2.append([symbol,RSI,Z,MFI,haS])
+        elif (MFI<0.3 and haS==1): # strong buy
+            strongBuy2.append([symbol,RSI,Z,MFI,haS]) 
+        elif (MFI<0.4 and haS==1): # buy
+            buy2.append([symbol,RSI,Z,MFI,haS])       
+        else: # neutral
+            neutral2.append([symbol,RSI,Z,MFI,haS])
         track+=1
         printProgress(track,len(symbols))
     print('\n'*100)
@@ -121,4 +136,13 @@ def checkSymbols(client,symbols,market):
     printNicely(sell,market)
     print("\n==============STRONG SELL=============")
     printNicely(strongSell,market)
+    print('\n')   
+    print("\n==============STRONG BUY==============")
+    printNicely(strongBuy2,market)
+    print("\n==================BUY=================")
+    printNicely(buy2,market)
+    print("\n=================SELL=================")
+    printNicely(sell2,market)
+    print("\n==============STRONG SELL=============")
+    printNicely(strongSell2,market)
     print('\n')
